@@ -61,6 +61,7 @@ func ExampleClientCredentialGetter() {
 			Scopes:       []string{""},
 			TokenURL:     "https://domain.com/oauth/token",
 		},
+		nil,
 	)
 
 	client := NewClient(tokencache.NewTokenCache(tokenGetter))

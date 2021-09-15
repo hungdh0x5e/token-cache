@@ -9,18 +9,21 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-func NewClientCredentialGetter(config clientcredentials.Config) TokenGetter {
-	return ClientCredentialGetter{config: config}
+func NewClientCredentialGetter(config clientcredentials.Config, httpClient *http.Client) TokenGetter {
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: 30 * time.Second}
+	}
+	return ClientCredentialGetter{config: config, httpClient: httpClient}
 }
 
 type ClientCredentialGetter struct {
-	config clientcredentials.Config
+	config     clientcredentials.Config
+	httpClient *http.Client
 }
 
 // FetchToken implement TokenGetter interface
 func (o ClientCredentialGetter) FetchToken(ctx context.Context) (*oauth2.Token, error) {
-	httpClient := &http.Client{Timeout: 30 * time.Second}
-	ctx = context.WithValue(ctx, oauth2.HTTPClient, httpClient)
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, o.httpClient)
 
 	return o.config.Token(ctx)
 }
